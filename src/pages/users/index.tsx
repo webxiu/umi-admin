@@ -1,74 +1,76 @@
-import React from 'react';
-import { Table, Tag, Space } from 'antd'
-import { connect } from 'umi'
+import React, { useState } from 'react';
+import { Table, Space } from 'antd';
+import { connect } from 'umi';
 
-const index = (props) => {
-    const columns = [
-        {
-          title: 'Name',
-          dataIndex: 'name',
-          key: 'name',
-          render: text => <a>{text}</a>,
-        },
-        {
-          title: 'Age',
-          dataIndex: 'age',
-          key: 'age',
-        },
-        {
-          title: 'Address',
-          dataIndex: 'address',
-          key: 'address',
-        },
-        {
-          title: 'Tags',
-          key: 'tags',
-          dataIndex: 'tags',
-          render: tags => (
-            <>
-              {tags.map(tag => {
-                let color = tag.length > 5 ? 'geekblue' : 'green';
-                if (tag === 'loser') {
-                  color = 'volcano';
-                }
-                return (
-                  <Tag color={color} key={tag}>
-                    {tag.toUpperCase()}
-                  </Tag>
-                );
-              })}
-            </>
-          ),
-        },
-        {
-          title: 'Action',
-          key: 'action',
-          render: (text, record) => (
-            <Space size="middle">
-              <a>Invite {record.name}</a>
-              <a>Delete</a>
-            </Space>
-          ),
-        },
-      ];
-      
-      
-    return (
-        <div>
-            <Table columns={columns} dataSource={props.users} />;
-        </div>
-    );
-}
+import UserModal from './components/UserModal';
 
+const index = props => {
+  const [visible, setVisible] = useState(false);
+  const [record, setRecord] = useState({});
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      render: text => <a>{text}</a>,
+    },
+    {
+      title: '姓名',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'create_time',
+      key: 'create_time',
+      render: time => {
+        const d = new Date(time).toLocaleString();
+        const t = d.replace(/[\u4e00-\u9fa5]/g, '');
+        return <span>{t}</span>;
+      },
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (text, record) => (
+        <Space size="middle">
+          <a
+            onClick={() => {
+              setRecord(record);
+              setVisible(true);
+            }}
+          >
+            编辑
+          </a>
+          <a>删除</a>
+        </Space>
+      ),
+    },
+  ];
 
-const mapStateToProps = (state) => {
+  const closeVisible = () => {
+    setVisible(false);
+  };
+
+  return (
+    <div>
+      <Table columns={columns} dataSource={props.users} rowKey="id" />
+      <UserModal
+        visible={visible}
+        closeVisible={closeVisible}
+        record={record}
+      />
+    </div>
+  );
+};
+
+const mapStateToProps = state => {
   return {
-    users: state.users
-  }
-}
-const mapDispatchToState = (dispatch) => {
-  console.log('dispatch ========:>> ', dispatch);
-  return {}
-}
+    users: state.users,
+  };
+};
+const mapDispatchToState = dispatch => {
+  return {};
+};
 
-export default connect(mapStateToProps,mapDispatchToState)(index);
+export default connect(mapStateToProps, mapDispatchToState)(index);

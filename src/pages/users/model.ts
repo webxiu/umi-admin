@@ -1,5 +1,5 @@
 import { Effect, ImmerReducer, Reducer, Subscription } from 'umi';
-import { type } from '../../../../umi-antd-pro/config/defaultSettings';
+import { getRemoteList } from './service'
 export interface UserModelState {
   name: string;
 }
@@ -24,61 +24,29 @@ export interface UserModelType {
 
 const UserModel: UserModelType = {
   namespace: 'users',
-  state: {
-    name: '',
-  },
+  state: [],
   // 异步
   effects: {
     *query({ payload }, { call, put }) { // action,effects
         // yield put()
         // 发请求
-        const data = [
-            {
-              key: '1',
-              name: '张三丰',
-              age: 32,
-              address: '住址为山东',
-              tags: ['nice', 'developer'],
-            }]
-
-            yield put({
-                type: 'save',
-                payload: data
-            })
+        const data = yield call(getRemoteList); // yield 等待结果返回
+        console.log('data', data)
+        yield put({
+            type: 'save',
+            payload: data
+        })
     },
   },
   // 同步
   reducers: {
     save(state, action) {// action => type payload
         // 发请求
-        const dataSource = [
-            {
-              key: '1',
-              name: '张三',
-              age: 32,
-              address: '地址和住址',
-              tags: ['nice', 'developer'],
-            },
-            {
-              key: '2',
-              name: 'Jim Green',
-              age: 42,
-              address: 'London No. 1 Lake Park',
-              tags: ['loser'],
-            },
-            {
-              key: '3',
-              name: 'Joe Black',
-              age: 32,
-              address: 'Sidney No. 1 Lake Park',
-              tags: ['cool', 'teacher'],
-            },
-          ];
-          // return { // 默认格式
-          //   ...state,
-          //   ...action.payload,
-          // };
-    //   return dataSource; // reducers同步提交
+       
+        // return { // 默认格式
+        //   ...state,
+        //   ...action.payload,
+        // };
       return action.payload; // effects异步提交
     },
     // 启用 immer 之后
