@@ -30,7 +30,6 @@ const UserModel: UserModelType = {
   // 异步
   effects: {
     *query({ payload }, { call, put }) { // action,effects
-        // yield put()
         // 发请求
         const data = [
             {
@@ -42,7 +41,7 @@ const UserModel: UserModelType = {
             }]
 
             yield put({
-                type: 'save',
+                type: 'save', // 同步的方法名
                 payload: data
             })
     },
@@ -51,34 +50,11 @@ const UserModel: UserModelType = {
   reducers: {
     save(state, action) {// action => type payload
         // 发请求
-        const dataSource = [
-            {
-              key: '1',
-              name: '张三',
-              age: 32,
-              address: '地址和住址',
-              tags: ['nice', 'developer'],
-            },
-            {
-              key: '2',
-              name: 'Jim Green',
-              age: 42,
-              address: 'London No. 1 Lake Park',
-              tags: ['loser'],
-            },
-            {
-              key: '3',
-              name: 'Joe Black',
-              age: 32,
-              address: 'Sidney No. 1 Lake Park',
-              tags: ['cool', 'teacher'],
-            },
-          ];
-          // return { // 默认格式
-          //   ...state,
-          //   ...action.payload,
-          // };
-    //   return dataSource; // reducers同步提交
+        
+        // return { // 默认格式
+        //   ...state,
+        //   ...action.payload,
+        // };
       return action.payload; // effects异步提交
     },
     // 启用 immer 之后
