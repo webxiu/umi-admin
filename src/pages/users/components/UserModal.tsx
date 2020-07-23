@@ -3,7 +3,7 @@ import { Modal, Button, Form, Input } from 'antd';
 
 const UserModel = props => {
   const [form] = Form.useForm();
-  const { visible, record, closeVisible } = props;
+  const { visible, record, closeVisible, onFinish } = props;
 
   useEffect(() => {
     // 解决报错: Modal组件还没完加载完毕就填入数据 跟react生命周期不符 而报错
@@ -14,11 +14,16 @@ const UserModel = props => {
   }, [visible]);
 
   const handleOk = () => {
-    closeVisible();
+    form.submit();
+    // closeVisible();
   };
   // const handleCancel = ()=>{
   //     visible = false
   // }
+
+  const onFinishFailed = errorInfo => {
+    console.log('Failed:', errorInfo);
+  };
 
   return (
     <Modal
@@ -28,7 +33,12 @@ const UserModel = props => {
       onCancel={closeVisible}
       forceRender
     >
-      <Form name="basic" form={form}>
+      <Form
+        name="basic"
+        form={form}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+      >
         <Form.Item
           label="用户名"
           name="name"

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Table, Space } from 'antd';
+import { Table, Space, Popconfirm } from 'antd';
 import { connect } from 'umi';
 
 import UserModal from './components/UserModal';
+import { values } from 'lodash';
+import classNames from 'classnames';
 
-const index = props => {
+const index = ({ users, dispatch }) => {
   const [visible, setVisible] = useState(false);
   const [record, setRecord] = useState({});
   const columns = [
@@ -12,7 +14,7 @@ const index = props => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      render: text => <a>{text}</a>,
+      render: text => <a style={{ color: '#f0f' }}>{text}</a>,
     },
     {
       title: '姓名',
@@ -42,23 +44,51 @@ const index = props => {
           >
             编辑
           </a>
-          <a>删除</a>
+          <Popconfirm
+            title="确认删除吗?"
+            onConfirm={confirm}
+            onCancel={cancel}
+            okText="确认"
+            cancelText="取消"
+          >
+            <a href="#">删除</a>
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
+  // 关闭编辑弹窗
   const closeVisible = () => {
     setVisible(false);
   };
 
+  // 编辑接口调用
+  const onFinish = values => {
+    const id = record.id;
+    dispatch({
+      type: 'users/edit',
+      payload: { id, ...values },
+    });
+  };
+
+  // 确认删除
+  const confirm = paramas => {
+    console.log('确认删除 :>> ');
+  };
+  // 确认删除
+  const cancel = paramas => {
+    console.log('取消删除 :>> ');
+  };
+
   return (
     <div>
-      <Table columns={columns} dataSource={props.users} rowKey="id" />
+      <Table columns={columns} dataSource={users} rowKey="id" />
       <UserModal
         visible={visible}
         closeVisible={closeVisible}
         record={record}
+        onFinish={onFinish}
       />
     </div>
   );
@@ -69,8 +99,5 @@ const mapStateToProps = state => {
     users: state.users,
   };
 };
-const mapDispatchToState = dispatch => {
-  return {};
-};
 
-export default connect(mapStateToProps, mapDispatchToState)(index);
+export default connect(mapStateToProps)(index);
