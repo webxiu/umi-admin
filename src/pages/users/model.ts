@@ -1,6 +1,7 @@
 import { Effect, ImmerReducer, Reducer, Subscription } from 'umi';
-import { getRemoteList, editRecord } from './service';
-import { values } from 'lodash';
+import { getRemoteList, addRecord, editRecord, deleteRecord } from './service';
+import { message } from 'antd';
+
 export interface UserModelState {
   name: string;
 }
@@ -11,6 +12,7 @@ export interface UserModelType {
   effects: {
     query: Effect;
     edit: Effect;
+    delete: Effect;
   };
   // 同步
   reducers: {
@@ -32,13 +34,32 @@ const UserModel: UserModelType = {
       // 发请求
       const data = yield call(getRemoteList); // yield 等待结果返回
       console.log('model=>data', data);
-      yield put({
-        type: 'save',
-        payload: data,
-      });
+      if (data) {
+        yield put({ type: 'save', payload: data });
+      }
     },
     *edit({ payload: { id, values } }, { call, put }) {
+      console.log('values', values);
       const data = yield call(editRecord, { id, values });
+      if (data) {
+        yield put({ type: 'query' }); // 刷新列表
+        message.success('编辑成功==');
+      } else {
+        message.error('编辑失败==');
+      }
+    },
+    *add({ payload: { values } }, { call, put }) {
+      const data = yield call(addRecord, { values });
+      if (data) {
+        yield put({ type: 'query' });
+      }
+    },
+    *delete({ payload: { id } }, { call, put }) {
+      console.log('id', id);
+      const data = yield call(deleteRecord, { id });
+      if (data) {
+        yield put({ type: 'query' });
+      }
     },
   },
   // 同步

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, Button, Form, Input } from 'antd';
+import { isUndefined } from '../../../../../../vue/Example/资料/五子棋/hhh/pro/scripts/node';
 
 const UserModel = props => {
   const [form] = Form.useForm();
@@ -7,7 +8,11 @@ const UserModel = props => {
 
   useEffect(() => {
     // 解决报错: Modal组件还没完加载完毕就填入数据 跟react生命周期不符 而报错
-    form.setFieldsValue(record);
+    if (record === undefined) {
+      form.resetFields();
+    } else {
+      form.setFieldsValue(record);
+    }
     // return () => {
     //   console.log('卸载执行 :>> ');
     // };

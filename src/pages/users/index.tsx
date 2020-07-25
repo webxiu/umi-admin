@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import { Table, Space, Popconfirm } from 'antd';
 import { connect } from 'umi';
-
+import { Table, Space, Popconfirm, Button } from 'antd';
 import UserModal from './components/UserModal';
-import { values } from 'lodash';
-import classNames from 'classnames';
 
-const index = ({ users, dispatch }) => {
+const index = ({ users, dispatch, tableLoading }) => {
   const [visible, setVisible] = useState(false);
   const [record, setRecord] = useState({});
   const columns = [
@@ -65,25 +62,43 @@ const index = ({ users, dispatch }) => {
 
   // 编辑接口调用
   const onFinish = values => {
-    const id = record.id;
-    dispatch({
-      type: 'users/edit',
-      payload: { id, ...values },
-    });
+    const id = record && record.id ? record.id : 0;
+
+    if (id) {
+      dispatch({ type: 'users/edit', payload: { id, values } });
+    } else {
+      dispatch({ type: 'users/add', payload: { values } });
+    }
+    setVisible(false); // 失败弹窗也关闭  不合理
   };
 
   // 确认删除
   const confirm = paramas => {
-    console.log('确认删除 :>> ');
+    const id = record.id;
+    dispatch({ type: 'users/delete', payload: { id } });
+    console.log('确认删除id', id);
   };
-  // 确认删除
+  // 取消删除
   const cancel = paramas => {
     console.log('取消删除 :>> ');
   };
 
+  const addHander = () => {
+    setVisible(true);
+    setRecord(undefined); // 添加清空输入框
+  };
+
   return (
     <div>
-      <Table columns={columns} dataSource={users} rowKey="id" />
+      <Button type="primary" onClick={addHander}>
+        添加
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={users}
+        rowKey="id"
+        loading={tableLoading}
+      />
       <UserModal
         visible={visible}
         closeVisible={closeVisible}
@@ -95,8 +110,10 @@ const index = ({ users, dispatch }) => {
 };
 
 const mapStateToProps = state => {
+  // console.log('state :>> ', state);
   return {
     users: state.users,
+    tableLoading: state.loading.models.users,
   };
 };
 
